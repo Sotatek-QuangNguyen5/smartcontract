@@ -21,12 +21,12 @@ contract MyContract {
         uint256 amount;
     }
 
-    struct Transaction {
+    // struct Transaction {
 
-        address sender;
-        address receiver;
-        uint256 amount;
-    }
+    //     address sender;
+    //     address receiver;
+    //     uint256 amount;
+    // }
 
     constructor() {
 
@@ -70,7 +70,7 @@ contract MyContract {
             revert("You are already registered !!!");
         } else {
 
-            require(msg.value >= 0.0001 ether, "You need to pay at least 1 finney to sign the contract !!!");
+            require(msg.value >= 0.0001 ether, "You need to pay at least 0.0001 ether to sign the contract !!!");
             addSubciber();
             return "You subcriber successfully !!!";
         }
@@ -106,11 +106,17 @@ contract MyContract {
     function Refund() public returns(string memory) {
 
         require(subcribers[msg.sender].isSubciber == true  
-                && subcribers[msg.sender].isUnSubcirber == true
-                && subcribers[msg.sender].refund == false);
-        msg.sender.call{value: 0.0001 ether, gas: 5000};
+                && subcribers[msg.sender].isUnSubcirber == true,
+                "You have not unsubscribed !!!");
+        require(subcribers[msg.sender].refund == false, "You got your money back !!!");
+        (bool sent,) = msg.sender.call{value: subcribers[msg.sender].amount / 2 wei}("");
+        require(sent, "Failed to send Ether");
         subcribers[msg.sender].refund = true;
         return "Refund successfully !!!";
     }
 
+    function List() public view returns(Subcriber[] memory) {
+
+        return arrSubcirbers;
+    }
 }
